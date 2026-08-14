@@ -116,7 +116,7 @@ Goodbye!
 ### 1. Clone the repository
 
 ```bash
-git clone <repository-url>
+git clone <https://github.com/jovana-stojanovic/AI-Document-Search>
 cd ai-document-search
 ```
 
