@@ -157,7 +157,7 @@ Before using the chatbot, the documents need to be processed and added to Chroma
 Run:
 
 ```powershell
-python -m tests.test_vector_store
+python index.py
 ```
 
 This processes all PDF documents from the `data/documents/` folder, creates embeddings, and stores them in ChromaDB.
@@ -169,7 +169,7 @@ This step only needs to be performed when the document collection is created or 
 Run:
 
 ```powershell
-python -m tests.test_rag
+python main.py
 ```
 
 The application runs as an interactive terminal chatbot.
