@@ -12,11 +12,14 @@ def main():
             print("Goodbye!")
             break
 
-        answer, source = ask_question(query)
+        answer, sources = ask_question(query)
 
         print("\nGemini:")
         print(answer)
-        print(f"\nSource: {source}.pdf")
+        if sources:
+            print('\nSources:')
+            for source in sources:
+                print(f'{source}.pdf')
         print()
 
 
