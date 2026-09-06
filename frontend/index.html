@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document Search</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <header>
+        <p class="eyebrow">RAG document search</p>
+        <h1>Ask your documents</h1>
+        <p class="intro">Enter a question and get an answer with its supporting sources.</p>
+      </header>
+
+      <form id="question-form" class="question-form">
+        <label for="question">Question</label>
+        <div class="input-row">
+          <input
+            id="question"
+            name="question"
+            type="text"
+            placeholder="What would you like to know?"
+            autocomplete="off"
+            required
+          />
+          <button type="submit">Ask</button>
+        </div>
+      </form>
+
+      <p id="status" class="status" aria-live="polite"></p>
+
+      <section id="result" class="result" hidden>
+        <h2>Answer</h2>
+        <div id="answer" class="answer"></div>
+
+        <h2>Sources</h2>
+        <ul id="sources" class="sources"></ul>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

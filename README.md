@@ -2,7 +2,7 @@
 
 An AI-powered document search system that uses **Retrieval-Augmented Generation (RAG)** to answer questions based on information retrieved from PDF documents.
 
-The project combines **PDF processing, text chunking, semantic embeddings, vector search, and Google's Gemini API** to retrieve relevant information and generate contextual answers.
+The project combines **PDF processing, text chunking, semantic embeddings, vector search, Google's Gemini API, FastAPI, and a web frontend** to retrieve relevant information and generate contextual answers.
 
 ## Features
 
@@ -15,8 +15,11 @@ The project combines **PDF processing, text chunking, semantic embeddings, vecto
 * Generate answers using Google Gemini
 * Display the source document used for the answer
 * Ask multiple questions in a single terminal session
+* Provide a REST API using FastAPI
+* Provide a web interface using HTML, CSS, and JavaScript
+* Send questions from the frontend to the FastAPI backend
+* Display answers and source documents in the web interface
 * Indicate when the requested information is not available in the documents
-
 
 ## Technologies
 
@@ -26,6 +29,38 @@ The project combines **PDF processing, text chunking, semantic embeddings, vecto
 * **ChromaDB** — vector database and similarity search
 * **Google Gemini API** — answer generation
 * **python-dotenv** — environment variable management
+* **FastAPI** — REST API backend
+* **Uvicorn** — ASGI server for running the FastAPI application
+* **HTML, CSS, JavaScript** — web frontend
+
+## Project Structure
+
+```text
+AI-Document-Search/
+├── app/
+│   ├── loader.py
+│   ├── chunker.py
+│   ├── embeddings.py
+│   ├── vector_store.py
+│   ├── rag.py
+│   ├── api.py
+│   └── schemas.py
+├── data/
+│   └── documents/
+│       ├── deep_learning.pdf
+│       ├── seq2seq_attention.pdf
+│       └── word_vectors.pdf
+├── frontend/
+│   ├── index.html
+│   ├── styles.css
+│   └── app.js
+├── tests/
+├── index.py
+├── main.py
+├── requirements.txt
+├── README.md
+└── .gitignore
+```
 
 ## Documents
 
@@ -77,38 +112,125 @@ This context is then sent to Gemini, which generates the final answer.
 
 The application extracts the document name from the retrieved chunk ID and displays it together with the generated answer.
 
+## REST API
+
+The RAG functionality is exposed through a REST API built with **FastAPI**.
+
+The main endpoint is:
+
+```text
+POST /ask
+```
+
+It accepts a JSON request containing a question:
+
+```json
+{
+  "question": "What is attention?"
+}
+```
+
+The API processes the question using the existing RAG pipeline and returns the generated answer together with the source documents:
+
+```json
+{
+  "answer": "Based on the provided documents, attention ...",
+  "sources": [
+    "seq2seq_attention"
+  ]
+}
+```
+
+FastAPI also provides interactive API documentation at:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+The `/docs` page can be used to test the API directly from the browser.
+
+## Web Frontend
+
+The project also includes a standalone web frontend built with **HTML, CSS, and vanilla JavaScript**.
+
+The frontend allows users to:
+
+* Enter a question
+* Send the question to the FastAPI backend
+* Display the generated answer
+* Display the source documents
+* See loading and error states
+
+The frontend communicates with the backend using the REST API:
+
+```text
+Frontend
+   ↓
+POST /ask
+   ↓
+FastAPI
+   ↓
+RAG pipeline
+   ↓
+ChromaDB + Gemini
+   ↓
+JSON response
+   ↓
+Frontend
+```
+
+The frontend files are located in:
+
+```text
+frontend/
+├── index.html
+├── styles.css
+└── app.js
+```
+
 ## Example
+
+### Web Application
+
+The user can enter a question such as:
+
+```text
+What is attention?
+```
+
+The application returns an answer based only on the information retrieved from the available documents and displays the supporting source:
+
+```text
+Answer
+
+Based on the provided documents, attention (in the context
+of translation) can be thought of as "alignment"...
+
+Sources
+
+- seq2seq_attention
+```
+
+If the requested information is not available in the documents, the system indicates that it could not find the answer in the provided documents.
+
+### Terminal Application
+
+The original terminal interface is still available:
 
 ```text
 AI Document Search
+
 Type 'exit' to stop.
 
 You: what is attention
 
 Gemini:
+
 Based on the provided context, attention is a mechanism
 that learns to assign significance to different parts of
 the input for each step of the output.
 
 Source: seq2seq_attention.pdf
-
-You: what are word vectors
-
-Gemini:
-Based on the provided context, word vectors are
-representations of word tokens as vectors...
-
-Source: word_vectors.pdf
-
-You: who is Cristiano Ronaldo
-
-Gemini:
-Based on the provided context, there is no information
-mentioned about Cristiano Ronaldo.
-
-
-You: exit
-Goodbye!
 ```
 
 ## Installation
@@ -150,7 +272,7 @@ The API key is loaded from the environment and is not included in the repository
 
 ## Running the Application
 
-Before using the chatbot, the documents need to be processed and added to ChromaDB.
+Before using the application, the documents need to be processed and added to ChromaDB.
 
 ### 1. Index the documents
 
@@ -164,9 +286,47 @@ This processes all PDF documents from the `data/documents/` folder, creates embe
 
 This step only needs to be performed when the document collection is created or updated.
 
-### 2. Start the chatbot
+### 2. Start the FastAPI server
 
 Run:
+
+```powershell
+uvicorn app.api:app --reload
+```
+
+The API will be available at:
+
+```text
+http://127.0.0.1:8000
+```
+
+Interactive API documentation is available at:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+### 3. Open the web frontend
+
+Open:
+
+```text
+frontend/index.html
+```
+
+in a web browser.
+
+Make sure the FastAPI server is running before using the frontend.
+
+The frontend sends questions to:
+
+```text
+http://127.0.0.1:8000/ask
+```
+
+### 4. Run the terminal application
+
+The original terminal interface can still be used independently:
 
 ```powershell
 python main.py
@@ -182,4 +342,29 @@ To close the application, type:
 exit
 ```
 
+## Application Architecture
 
+The project consists of several layers:
+
+```text
+                    Web Browser
+                         |
+                         | HTTP POST /ask
+                         v
+              +---------------------+
+              |       FastAPI       |
+              |      app/api.py     |
+              +---------------------+
+                         |
+                         v
+              +---------------------+
+              |    RAG Pipeline     |
+              |      rag.py         |
+              +---------------------+
+                    /          \
+                   v            v
+              ChromaDB        Gemini
+             Retrieval      Generation
+```
+
+The FastAPI layer exposes the existing RAG functionality through HTTP, while the frontend provides a user-friendly interface for interacting with the API.
